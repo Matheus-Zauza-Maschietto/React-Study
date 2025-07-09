@@ -6,7 +6,8 @@ export default function Home(){
     function redirectToGame(formData){
         const player1 = formData.get("player1");
         const player2 = formData.get("player2");
-        navigate(`/Game?player1=${player1}&player2=${player2}`)
+        const boardLength = formData.get("boardLength")
+        navigate(`/Game?player1=${player1}&player2=${player2}&board-length=${boardLength}`)
     }
 
     return (
@@ -24,13 +25,26 @@ export default function Home(){
                         />
                     </label>
                 </div>
-                <div className='mb-6'>
+                <div className='mb-4'>
                     <label id='player2-label' className="block text-gray-700 text-sm font-bold mb-2">
                         Player 2 Name
                         <input 
                             name='player2'
                             type='text' 
                             id='player2-input' 
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                        />
+                    </label>
+                </div>
+                <div className='mb-6'>
+                    <label id='player2-label' className="block text-gray-700 text-sm font-bold mb-2">
+                        Board Length
+                        <input 
+                            name='boardLength'
+                            type='number' 
+                            min='3'
+                            defaultValue='3'
+                            id='board-length' 
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                         />
                     </label>

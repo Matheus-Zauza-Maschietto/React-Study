@@ -5,43 +5,77 @@ import { useState } from 'react';
 import O from '../O/O';
 import Victorious from '../Victorious/Victorious';
 
-export default function Board({size}){
+export default function Board({size, length, onPlayer1Win, onPlayer2Win}){
+    function createBoard(){
+        const board = []
+        for (let i = 0; i < length; i++) {
+            board.push([])
+            for (let j = 0; j < length; j++) {
+                board[i].push({checked: false, component: null})
+            }
+        }
+        return board;
+    }
     const [state, setState] = useState({ 
-        board: [
-            [{checked: false, component: null}, {checked: false, component: null}, {checked: false, component: null}],
-            [{checked: false, component: null}, {checked: false, component: null}, {checked: false, component: null}], 
-            [{checked: false, component: null}, {checked: false, component: null}, {checked: false, component: null}]
-        ],
+        board: createBoard(),
         nextComponentIsX: true,
         ended: false,
         winnerComponent: null
     });
     
-    const squareSize = size/3;
+    const squareSize = size/length;
     const oComponent = (<O diameter={squareSize} />);
     const xComponent = (<X height={squareSize} />);
+    const drawComponent = (<Square onClick={() => {}} size={squareSize} component={null} />)
+
 
     function setSquareComponent(line, row){
-        let currentComponentState = state.board[line][row];
+        let currentSquare = state.board[line][row];
 
-        if(currentComponentState.checked || state.ended) return;
+        if(currentSquare.checked || state.ended) return;
         
-        const nextComponent = state.nextComponentIsX ? xComponent : oComponent;
-        currentComponentState.component = nextComponent;
-        currentComponentState.checked = true;
+        const playedComponent = state.nextComponentIsX ? xComponent : oComponent;
+        currentSquare.component = playedComponent;
+        currentSquare.checked = true;
 
-        
-        if(isVictorious(nextComponent)) {
-            state.ended = true;   
-            state.winnerComponent = nextComponent;
+        if(isVictorious(playedComponent)) {
+            if(state.nextComponentIsX) onPlayer1Win();
+            else onPlayer2Win();
+            setGameEnd(playedComponent)
         }
+        else if(isDraw()){
+            setGameEnd(drawComponent)
+        }
+        setState(generateState())
 
-        setState({
+        if(state.ended)
+            setTimeout(() => resetBoard(), 3000)
+    }
+
+    function resetBoard(){
+        state.ended = false;
+        state.winnerComponent = null;
+        state.board = createBoard();
+        setState(generateState())
+    }
+
+    function generateState() {
+        return {
             board: state.board,
             nextComponentIsX: !state.nextComponentIsX,
             ended: state.ended,
             winnerComponent: state.winnerComponent
-        });
+        }
+    }
+
+    function setGameEnd(componentWinner){
+        state.ended = true;   
+        state.winnerComponent = componentWinner;
+    }
+
+    function isDraw(){
+        const allSquareIsChecked = state.board.every(p => p.every(i => i.checked))
+        return allSquareIsChecked
     }
 
     function isVictorious(componentToCheck){
@@ -116,7 +150,8 @@ export default function Board({size}){
         <>
             <div className='board' style={{
                     height: `${size}px`,
-                    width: `${size}px`
+                    width: `${size}px`,
+                    gridTemplateColumns: `1fr `.repeat(length)
                 }}
             >
                 {getBoardSquare()}

@@ -3,9 +3,7 @@ import './Victorious.css'
 export default function Victorious({victoriousComponent}){
     return (
         <>
-            <span style={{
-                fontSize: '20px'
-            }}>Vencedor: </span>
+            <span className='text-lg font-bold mt-6 block'>Vencedor: </span>
             {
                 victoriousComponent !== null ?
                 (victoriousComponent) :
