@@ -5,9 +5,7 @@ export default function Victorious({victoriousComponent}){
         <>
             <span className='text-lg font-bold mt-6 block'>Vencedor: </span>
             {
-                victoriousComponent !== null ?
-                (victoriousComponent) :
-                null
+                victoriousComponent !== null && victoriousComponent
             }
         </>
     )

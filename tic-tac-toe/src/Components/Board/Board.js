@@ -26,7 +26,7 @@ export default function Board({size, length, onPlayer1Win, onPlayer2Win}){
     const squareSize = size/length;
     const oComponent = (<O diameter={squareSize} />);
     const xComponent = (<X height={squareSize} />);
-    const drawComponent = (<Square onClick={() => {}} size={squareSize} component={null} />)
+    const drawComponent = (<Square onClick={() => {}} size={squareSize} component='' />)
 
 
     function setSquareComponent(line, row){
