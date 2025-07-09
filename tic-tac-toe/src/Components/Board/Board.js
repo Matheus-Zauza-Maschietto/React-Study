@@ -2,7 +2,7 @@ import './Board.css';
 import Square from '../Square/Square';
 import X from '../X/X';
 import { useState } from 'react';
-import O from '../Circle/O';
+import O from '../O/O';
 import Victorious from '../Victorious/Victorious';
 
 export default function Board({size}){
@@ -32,14 +32,15 @@ export default function Board({size}){
 
         
         if(isVictorious(nextComponent)) {
-            state.ended = true;    
+            state.ended = true;   
+            state.winnerComponent = nextComponent;
         }
 
         setState({
             board: state.board,
             nextComponentIsX: !state.nextComponentIsX,
             ended: state.ended,
-            winnerComponent: nextComponent
+            winnerComponent: state.winnerComponent
         });
     }
 
@@ -54,14 +55,14 @@ export default function Board({size}){
         let counter = 0;
         for (let i = 0; i < state.board.length; i++) {
             for (let j = 0; j < state.board.length; j++) {
-                const element = state.board[i][j];
-                if(element == componentToCheck) counter+=1;
-                else {
-                    counter = 0;
-                    break
-                }
-                if(counter == state.board.length) return true;
-            }
+                const element = state.board[i][j].component;
+                
+                if(element?.type?.name === componentToCheck?.type?.name) counter+=1;
+                else break
+                
+                if(counter === state.board.length) return true;
+            } 
+            counter = 0;  
         }
     }
 
@@ -69,39 +70,47 @@ export default function Board({size}){
         let counter = 0;
         for (let i = 0; i < state.board.length; i++) {
             for (let j = 0; j < state.board.length; j++) {
-                const element = state.board[j][i];
-                if(element == componentToCheck) counter+=1;
-                else {
-                    counter = 0;
-                    break
-                }
-                if(counter == state.board.length) return true;
+                const element = state.board[j][i].component;
+                if(element?.type?.name === componentToCheck?.type?.name) counter+=1;
+                else break
+                
+                if(counter === state.board.length) return true;
             }
+            counter = 0;
         }
     }
 
     function isDiagonalVictory(componentToCheck){
         let counter = 0;
         for (let i = 0; i < state.board.length; i++) {
-            const element = state.board[i][i];
-            if(element == componentToCheck) counter+=1;
-            else {
-                counter = 0;
-                break
-            }
-            if(counter == state.board.length) return true;
+            const element = state.board[i][i].component;
+            if(element?.type?.name === componentToCheck?.type?.name) counter+=1;
+            else break
+            
+            if(counter === state.board.length) return true;
         }
-        for (let i = state.board.length-1; i > 0; i--) {
-            const element = state.board[i][i];
-            if(element == componentToCheck) counter+=1;
-            else {
-                counter = 0;
-                break
-            }
-            if(counter == state.board.length) return true;
+        counter = 0;
+        for (let i = 0; i < state.board.length; i++) {
+            const element = state.board[state.board.length-1-i][i].component;
+            if(element?.type?.name === componentToCheck?.type?.name) counter+=1;
+            else break
+            
+            if(counter === state.board.length) return true;
         }
+        counter = 0;
     }
 
+    function getBoardSquare(){
+        const squares = []
+        for (let i = 0; i < state.board.length; i++) {
+            for (let j = 0; j < state.board.length; j++) {
+                squares.push(
+                    <Square key={`${i}${j}`} component={ state.board[i][j].component } size={squareSize} onClick={() => setSquareComponent(i, j)}/>
+                )
+            }
+        }
+        return squares;
+    }
 
     return (
         <>
@@ -110,15 +119,7 @@ export default function Board({size}){
                     width: `${size}px`
                 }}
             >
-                <Square component={ state.board[0][0].component } size={squareSize} onClick={() => setSquareComponent(0, 0)}/>
-                <Square component={ state.board[0][1].component } size={squareSize} onClick={() => setSquareComponent(0, 1)}/>
-                <Square component={ state.board[0][2].component } size={squareSize} onClick={() => setSquareComponent(0, 2)}/>
-                <Square component={ state.board[1][0].component } size={squareSize} onClick={() => setSquareComponent(1, 0)}/>
-                <Square component={ state.board[1][1].component } size={squareSize} onClick={() => setSquareComponent(1, 1)}/>
-                <Square component={ state.board[1][2].component } size={squareSize} onClick={() => setSquareComponent(1, 2)}/>
-                <Square component={ state.board[2][0].component } size={squareSize} onClick={() => setSquareComponent(2, 0)}/>
-                <Square component={ state.board[2][1].component } size={squareSize} onClick={() => setSquareComponent(2, 1)}/>
-                <Square component={ state.board[2][2].component } size={squareSize} onClick={() => setSquareComponent(2, 2)}/>
+                {getBoardSquare()}
             </div>
             <Victorious victoriousComponent={state.winnerComponent} />
         </>

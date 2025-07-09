@@ -1,5 +1,4 @@
 import './Square.css';
-import { useState } from 'react';
 
 export default function Square({component, size, onClick}){
     return (

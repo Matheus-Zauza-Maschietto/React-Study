@@ -1,12 +1,18 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
-import Board from './Components/Board/Board';
+import Game from './Pages/Game/Game';
+import Home from './Pages/Home/Home';
 
 function App() {
   return (
-    <div className="App">
-      <Board size={600} />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/game" element={<Game size={1000} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
 export default App;
+
