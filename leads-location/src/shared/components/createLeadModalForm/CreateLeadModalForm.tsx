@@ -1,12 +1,46 @@
 "use client"
 
-import React from 'react'
+import React, { useId } from 'react'
 import Modal from '../modal/Modal'
-import CityStateFormInputs from '../cityStateFormInputs/CityStateFormInputs'
+import AddressForm from '../cityStateFormInputs/AddressForm'
+import LeadRepository from '@/shared/repositories/LeadRepository'
+import Lead from '@/shared/models/Lead'
+import maskService from '@/shared/services/maskService'
+
 
 type Props = { showModal: boolean, setShowModal: (show: boolean) => void }
 
 function CreateLeadModalForm({ showModal, setShowModal }: Props) {
+    const [phone, setPhone] = React.useState('');
+    const id = useId();
+
+    function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        
+        const newLead = new Lead(
+            id,
+            e.currentTarget.nomeCompleto.value,
+            e.currentTarget.email.value,
+            e.currentTarget.telefone.value,
+            e.currentTarget.endereco.value,
+            e.currentTarget.bairro.value,
+            e.currentTarget.city.value,
+            e.currentTarget.state.value,
+            0,
+            0,
+            e.currentTarget.observacoes.value || ''
+        )
+
+        LeadRepository.addLead(newLead);
+        setShowModal(false);
+    }
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const masked = maskService.phoneMask(e.target.value);
+        setPhone(masked);
+    };
+    
+
     return (
         <Modal show={showModal} backgroundClasses='backdrop-blur-sm backdrop-brightness-50 z-10'>
             <div className='bg-white p-6 rounded-md shadow-lg w-[95%] max-w-[var(--max-width)] lg:w-3/4 mx-auto backdrop-blur-3xl'>
@@ -18,7 +52,7 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
                     <button className='text-gray-500 hover:text-gray-700 text-3xl hover:cursor-pointer' onClick={() => setShowModal(false)}>x</button>
                 </div>
                 <br className='border-2' />
-                <form action="">
+                <form onSubmit={handleFormSubmit}>
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Nome Completo *
                         <input type="text" name="nomeCompleto" id="nomeCompleto" className='w-full p-2 border border-gray-300 rounded-md'/>
                     </label>
@@ -26,12 +60,9 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
                         <input type="email" name="email" id="email" className='w-full p-2 border border-gray-300 rounded-md'/>
                     </label>
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Telefone *
-                        <input type="tel" name="telefone" id="telefone" className='w-full p-2 border border-gray-300 rounded-md'/>
+                        <input type="tel" name="telefone" id="telefone" className='w-full p-2 border border-gray-300 rounded-md' value={phone} onChange={handlePhoneChange} />
                     </label>
-                    <CityStateFormInputs />
-                    <label className='block mb-2 text-sm font-medium text-gray-700'>Endereço *
-                        <input type="text" name="endereco" id="endereco" className='w-full p-2 border border-gray-300 rounded-md'/>
-                    </label>
+                    <AddressForm />
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Observações
                         <textarea name="observacoes" id="observacoes" rows={4} className='w-full p-2 border border-gray-300 rounded-md' />
                     </label>
