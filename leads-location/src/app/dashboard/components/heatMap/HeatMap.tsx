@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import Map from '../map/Map'
+import Map from '../../../../shared/components/map/Map'
 
 type Props = {}
 

@@ -29,10 +29,18 @@ function Map({leads}: Props) {
         map.current.on("click", addMarkers);
 
         gc.current = new GeocodingControl({
-            limit: 3,
-            country: "br",
             proximity: [{ type: "map-center" }],
         });
+
+        gc.current.on("pick", (e) => {
+            if (!map.current) return;
+            const coordinates = e.feature?.center;
+            new maptilersdk.Marker({ color: "#FF0000" })
+                .setLngLat([coordinates?.[0] ?? 0, coordinates?.[1] ?? 0])
+                .addTo(map.current);
+        });
+
+        
         map.current.addControl(gc.current);
     }, []);
 

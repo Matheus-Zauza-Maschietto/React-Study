@@ -2,9 +2,11 @@ import DashboardHeader from '@/app/dashboard/components/dashboardHeader/Dashboar
 import React from 'react'
 import DashboardTitle from './components/dashboardTitle/DashboardTitle'
 import DashboardStatsCard from './components/dashboardStatsCard/DashboardStatsCard'
-import HeatMap from '@/shared/components/heatMap/HeatMap'
-import LeadList from '@/shared/components/leadList/LeadList'
+import HeatMap from '@/app/dashboard/components/heatMap/HeatMap'
+import LeadList from '@/app/dashboard/components/leadList/LeadList'
 import Modal from '@/shared/components/modal/Modal'
+import ViewleadModal from './components/viewleadModal/ViewleadModal'
+import Lead from '@/shared/models/Lead'
 
 type Props = {}
 

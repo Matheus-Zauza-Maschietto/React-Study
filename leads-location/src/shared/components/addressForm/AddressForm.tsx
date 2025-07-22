@@ -52,7 +52,8 @@ function AddressForm({}: Props) {
   return (
     <>
         <label className='block mb-2 text-sm font-medium text-gray-700'>CEP *
-            <input 
+            <input
+                required 
                 type="cep" 
                 name="cep" 
                 id="cep" 
@@ -64,7 +65,7 @@ function AddressForm({}: Props) {
             {cep.cepNotFound && <span className='text-red-500 text-sm'>CEP não encontrado</span>}
         </label>
         <label className='block mb-2 text-sm font-medium text-gray-700'>Estado *
-            <select name="state" id="state" className='w-full p-2 border border-gray-300 rounded-md' value={state} onChange={handleStateChange}>
+            <select required name="state" id="state" className='w-full p-2 border border-gray-300 rounded-md' value={state} onChange={handleStateChange}>
                 <option value="">Selecione um estado</option>
                 <option value="RO">Rondônia</option>
                 <option value="AC">Acre</option>
@@ -96,7 +97,7 @@ function AddressForm({}: Props) {
             </select>
         </label>
         <label className='block mb-2 text-sm font-medium text-gray-700'>Cidade *
-            <select name="city" id="city" className='w-full p-2 border border-gray-300 rounded-md' value={city.city} onChange={handleCityChange}>
+            <select required name="city" id="city" className='w-full p-2 border border-gray-300 rounded-md' value={city.city} onChange={handleCityChange}>
                 {
                     city.cities.length === 0 ?
                     (<option value="">Selecione um estado primeiro</option>) 
@@ -112,6 +113,7 @@ function AddressForm({}: Props) {
         </label>
         <label className='block mb-2 text-sm font-medium text-gray-700'>Bairro *
             <input 
+                required
                 type="text" 
                 name="bairro" 
                 id="bairro" 
@@ -121,6 +123,7 @@ function AddressForm({}: Props) {
         </label>
         <label className='block mb-2 text-sm font-medium text-gray-700'>Endereço *
             <input 
+                required
                 type="text" 
                 name="endereco" 
                 id="endereco" 

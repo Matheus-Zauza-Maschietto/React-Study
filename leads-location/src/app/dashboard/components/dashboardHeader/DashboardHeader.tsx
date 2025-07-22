@@ -1,6 +1,6 @@
 "use client"
 
-import CreateLeadModalForm from '@/shared/components/createLeadModalForm/CreateLeadModalForm'
+import CreateLeadModalForm from '@/app/dashboard/components/createLeadModalForm/CreateLeadModalForm'
 import React from 'react'
 
 type Props = {}

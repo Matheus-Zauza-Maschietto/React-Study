@@ -1,5 +1,3 @@
-import LeadCard from "../leadCard/LeadCard";
-import LeadListCard from "../leadListCard/LeadListTableRow";
 import LeadListTable from "../leadListTable/LeadListTable";
 
 

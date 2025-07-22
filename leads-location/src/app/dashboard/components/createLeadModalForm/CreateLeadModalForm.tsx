@@ -1,37 +1,43 @@
 "use client"
-
+import { v4 as uuidv4 } from 'uuid';
 import React, { useId } from 'react'
-import Modal from '../modal/Modal'
-import AddressForm from '../cityStateFormInputs/AddressForm'
+import Modal from '../../../../shared/components/modal/Modal'
+import AddressForm from '../../../../shared/components/addressForm/AddressForm'
 import LeadRepository from '@/shared/repositories/LeadRepository'
 import Lead from '@/shared/models/Lead'
 import maskService from '@/shared/services/maskService'
+import GeoCodingRepository from '@/shared/repositories/GeoCodingRepository'
 
 
 type Props = { showModal: boolean, setShowModal: (show: boolean) => void }
 
 function CreateLeadModalForm({ showModal, setShowModal }: Props) {
     const [phone, setPhone] = React.useState('');
-    const id = useId();
-
-    function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+    
+    async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+        const currentTarget = e.currentTarget;
         e.preventDefault();
         
+        const address = `Brasil, ${currentTarget.state.value}, ${currentTarget.city.selectedOptions[0].textContent}, ${currentTarget.bairro.value}, ${currentTarget.endereco.value}`
+        const coordinates = await GeoCodingRepository.getCoordinates(address)
+
         const newLead = new Lead(
-            id,
-            e.currentTarget.nomeCompleto.value,
-            e.currentTarget.email.value,
-            e.currentTarget.telefone.value,
-            e.currentTarget.endereco.value,
-            e.currentTarget.bairro.value,
-            e.currentTarget.city.value,
-            e.currentTarget.state.value,
-            0,
-            0,
-            e.currentTarget.observacoes.value || ''
+            uuidv4(),
+            currentTarget.nomeCompleto.value,
+            currentTarget.email.value,
+            currentTarget.telefone.value,
+            currentTarget.endereco.value,
+            currentTarget.bairro.value,
+            currentTarget.city.selectedOptions[0].textContent,
+            currentTarget.city.value,
+            currentTarget.state.value,
+            coordinates.lat || 0,
+            coordinates.lng || 0,
+            currentTarget.observacoes.value || '',
+            currentTarget.cep.value.replace(/\D/g, '')
         )
 
-        LeadRepository.addLead(newLead);
+        await LeadRepository.addLead(newLead);
         setShowModal(false);
     }
 
@@ -54,13 +60,13 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
                 <br className='border-2' />
                 <form onSubmit={handleFormSubmit}>
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Nome Completo *
-                        <input type="text" name="nomeCompleto" id="nomeCompleto" className='w-full p-2 border border-gray-300 rounded-md'/>
+                        <input required type="text" name="nomeCompleto" id="nomeCompleto" className='w-full p-2 border border-gray-300 rounded-md'/>
                     </label>
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Email *
-                        <input type="email" name="email" id="email" className='w-full p-2 border border-gray-300 rounded-md'/>
+                        <input required type="email" name="email" id="email" className='w-full p-2 border border-gray-300 rounded-md'/>
                     </label>
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Telefone *
-                        <input type="tel" name="telefone" id="telefone" className='w-full p-2 border border-gray-300 rounded-md' value={phone} onChange={handlePhoneChange} />
+                        <input required type="tel" name="telefone" id="telefone" className='w-full p-2 border border-gray-300 rounded-md' value={phone} onChange={handlePhoneChange} />
                     </label>
                     <AddressForm />
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Observações
@@ -74,6 +80,8 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
                         </button>
                     </div>
                 </form>
+
+                
             </div>
         </Modal>
     )
