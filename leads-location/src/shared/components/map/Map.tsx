@@ -1,61 +1,42 @@
 "use client"
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, RefObject, Ref } from 'react';
 import * as maptilersdk from '@maptiler/sdk';
 import "@maptiler/sdk/dist/maptiler-sdk.css";
 import { GeocodingControl } from "@maptiler/geocoding-control/maptilersdk";
 import "@maptiler/geocoding-control/style.css";
 import Lead from '@/shared/models/Lead';
 
-type Props = {leads?: Lead[]}
+type Props = {initialZoom?: number, useGeocoding?: boolean, mapContainerRef: RefObject<HTMLDivElement | null>, mapRef: RefObject<maptilersdk.Map | null>, geoRef: RefObject<GeocodingControl | null>};
 
-function Map({leads}: Props) {
-    const mapContainer = useRef<HTMLDivElement | null>(null);
-    const map = useRef<maptilersdk.Map | null>(null);
-    const gc = useRef<GeocodingControl | null>(null);
-    const zoom = 2;
+function Map({initialZoom = 2, useGeocoding = false, mapContainerRef, mapRef, geoRef}: Props) {
     maptilersdk.config.apiKey = '5MbXsNZXFjhjdUs84ZR9';
 
     useEffect(() => {
-        if (map.current || !mapContainer.current) return;
+        if (mapRef?.current || !mapContainerRef?.current) return;
 
-        map.current = new maptilersdk.Map({
-            container: mapContainer.current,
+        mapRef.current = new maptilersdk.Map({
+            container: mapContainerRef.current,
             style: maptilersdk.MapStyle.STREETS,
             center: [0, 0],
-            zoom: zoom
+            zoom: initialZoom
         });
 
-        map.current.on("click", addMarkers);
-
-        gc.current = new GeocodingControl({
+        geoRef.current = new GeocodingControl({
             proximity: [{ type: "map-center" }],
         });
 
-        gc.current.on("pick", (e) => {
-            if (!map.current) return;
-            const coordinates = e.feature?.center;
-            new maptilersdk.Marker({ color: "#FF0000" })
-                .setLngLat([coordinates?.[0] ?? 0, coordinates?.[1] ?? 0])
-                .addTo(map.current);
-        });
-
-        
-        map.current.addControl(gc.current);
+        if (useGeocoding) setGeoCoding(mapRef.current, geoRef.current);
     }, []);
 
-    function addMarkers(e: maptilersdk.MapMouseEvent): void {
-        if (!map.current || !mapContainer.current) return;
-
-        const coordinates = e.lngLat;
-        new maptilersdk.Marker({ color: "#FF0000" })
-            .setLngLat([coordinates.lng, coordinates.lat])
-            .addTo(map.current);
+    function setGeoCoding(map: maptilersdk.Map, geo: GeocodingControl): void {
+        if (!useGeocoding) return;
+        map.addControl(geo);
     }
 
     return (
         <div className="relative w-full h-full">
-            <div ref={mapContainer} className="absolute w-full h-full" />
+            <div ref={mapContainerRef} className="absolute w-full h-full" />
         </div>
     );
 }
