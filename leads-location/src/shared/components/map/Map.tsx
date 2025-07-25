@@ -13,21 +13,24 @@ function Map({initialZoom = 2, useGeocoding = false, mapContainerRef, mapRef, ge
     maptilersdk.config.apiKey = '5MbXsNZXFjhjdUs84ZR9';
 
     useEffect(() => {
-        if (mapRef?.current || !mapContainerRef?.current) return;
+        if (!mapRef || !mapContainerRef || !geoRef) return;
+        if (mapRef.current) return;
 
-        mapRef.current = new maptilersdk.Map({
-            container: mapContainerRef.current,
-            style: maptilersdk.MapStyle.STREETS,
-            center: [0, 0],
-            zoom: initialZoom
-        });
+        if (mapContainerRef.current) {
+            mapRef.current = new maptilersdk.Map({
+                container: mapContainerRef.current,
+                style: maptilersdk.MapStyle.STREETS,
+                center: [0, 0],
+                zoom: initialZoom
+            });
+        }
 
         geoRef.current = new GeocodingControl({
             proximity: [{ type: "map-center" }],
         });
 
-        if (useGeocoding) setGeoCoding(mapRef.current, geoRef.current);
-    }, []);
+        if (useGeocoding && mapRef.current) setGeoCoding(mapRef.current, geoRef.current);
+    }, [mapRef, mapContainerRef, geoRef, initialZoom, useGeocoding]);
 
     function setGeoCoding(map: maptilersdk.Map, geo: GeocodingControl): void {
         if (!useGeocoding) return;

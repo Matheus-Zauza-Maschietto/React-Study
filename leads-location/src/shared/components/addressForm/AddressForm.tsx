@@ -2,32 +2,47 @@
 
 import IBGECity from '@/shared/models/IBGECity';
 import IBGERespository from '@/shared/repositories/IBGERespository';
-import React, { useState } from 'react'
-import { set } from 'react-hook-form';
+import React, { useEffect, useState } from 'react'
 
-type Props = {}
+type Props = {initialCep?: string, initialState?: string, initialCityId?: number, initialNeighborhood?: string, initialAddress?: string}
 
-function AddressForm({}: Props) {
+function AddressForm({initialCep, initialState, initialCityId, initialNeighborhood, initialAddress}: Props) {
     const [cep, setCep] = useState({cepValue: '', cepNotFound: false});
     const [state, setState] = useState('');
     const [city, setCity] = useState<{ city: string; cities: IBGECity[] }>({ city: '', cities: [] });
     const [neighborhood, setNeighborhood] = useState('');
     const [address, setAddress] = useState('');
 
-    async function handleStateChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        const value = e.target.value;
-        setState(value);
-        const citiesList = await IBGERespository.getCities(value);
+    useEffect(() => {
+        if (initialCep) {
+            handleCEPBlur(initialCep);
+        }
+        if (initialState) {
+            handleStateChange(initialState);
+        }
+        if (initialCityId) {
+            handleCityChange(initialCityId.toString());
+        }
+        if (initialNeighborhood) {
+            setNeighborhood(initialNeighborhood);
+        }
+        if (initialAddress) {
+            setAddress(initialAddress);
+        }
+    }, [])
+
+    async function handleStateChange(baseValue: string) {
+        setState(baseValue);
+        const citiesList = await IBGERespository.getCities(baseValue);
         setCity({ ...city, cities: citiesList });
     }
 
-    async function handleCityChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        const value = e.target.value;
-        setCity({ ...city, city: value });
+    async function handleCityChange(cityId: string) {
+        setCity({ ...city, city: cityId });
     }
 
-    async function handleCEPBlur(e: React.ChangeEvent<HTMLInputElement>) {
-        const value = e.target.value.replace(/\D/g, ''); 
+    async function handleCEPBlur(baseValue: string) {
+        const value = baseValue.replace(/\D/g, ''); 
         try{
             const cepInformations = await IBGERespository.getCep(value)
 
@@ -44,8 +59,8 @@ function AddressForm({}: Props) {
         }
     }
 
-    async function handleCEPChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const value = e.target.value.replace(/\D/g, ''); 
+    async function handleCEPChange(baseValue: string) {
+        const value = baseValue.replace(/\D/g, ''); 
         setCep({ cepValue: value, cepNotFound: false });
     }
 
@@ -58,14 +73,14 @@ function AddressForm({}: Props) {
                 name="cep" 
                 id="cep" 
                 className='w-full p-2 border border-gray-300 rounded-md' 
-                value={cep.cepValue} onChange={handleCEPChange} onBlur={handleCEPBlur} 
+                value={cep.cepValue} onChange={(e) => handleCEPChange(e.target.value)} onBlur={(e) => handleCEPBlur(e.target.value)} 
                 placeholder='Digite o CEP'
                 maxLength={9}
                 />
             {cep.cepNotFound && <span className='text-red-500 text-sm'>CEP não encontrado</span>}
         </label>
         <label className='block mb-2 text-sm font-medium text-gray-700'>Estado *
-            <select required name="state" id="state" className='w-full p-2 border border-gray-300 rounded-md' value={state} onChange={handleStateChange}>
+            <select required name="state" id="state" className='w-full p-2 border border-gray-300 rounded-md' value={state} onChange={(e) => handleStateChange(e.target.value)}>
                 <option value="">Selecione um estado</option>
                 <option value="RO">Rondônia</option>
                 <option value="AC">Acre</option>
@@ -97,7 +112,7 @@ function AddressForm({}: Props) {
             </select>
         </label>
         <label className='block mb-2 text-sm font-medium text-gray-700'>Cidade *
-            <select required name="city" id="city" className='w-full p-2 border border-gray-300 rounded-md' value={city.city} onChange={handleCityChange}>
+            <select required name="city" id="city" className='w-full p-2 border border-gray-300 rounded-md' value={city.city} onChange={(e) => handleCityChange(e.target.value)}>
                 {
                     city.cities.length === 0 ?
                     (<option value="">Selecione um estado primeiro</option>) 

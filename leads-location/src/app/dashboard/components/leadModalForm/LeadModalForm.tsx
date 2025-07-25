@@ -1,6 +1,6 @@
 "use client"
 import { v4 as uuidv4 } from 'uuid';
-import React, { useId } from 'react'
+import React, { useEffect, useId } from 'react'
 import Modal from '../../../../shared/components/modal/Modal'
 import AddressForm from '../../../../shared/components/addressForm/AddressForm'
 import LeadRepository from '@/shared/repositories/LeadRepository'
@@ -9,11 +9,29 @@ import maskService from '@/shared/services/maskService'
 import GeoCodingRepository from '@/shared/repositories/GeoCodingRepository'
 
 
-type Props = { showModal: boolean, setShowModal: (show: boolean) => void }
+type Props = { lead?: Lead | null, showModal: boolean, setShowModal: (show: boolean) => void }
 
-function CreateLeadModalForm({ showModal, setShowModal }: Props) {
+function LeadModalForm({ lead, showModal, setShowModal }: Props) {
     const [phone, setPhone] = React.useState('');
-    
+    const formRef = React.useRef<HTMLFormElement | null>(null);
+
+    useEffect(loadLeadData, [lead]);
+
+    function loadLeadData() {
+        if (!lead) return;
+        if (!formRef.current) return;
+        formRef.current.nomeCompleto.value = lead.name;
+        formRef.current.email.value = lead.email;
+        formRef.current.telefone.value = lead.phone;
+        formRef.current.endereco.value = lead.address;
+        formRef.current.bairro.value = lead.neighborhood;
+        formRef.current.city.value = lead.cityId;
+        formRef.current.state.value = lead.state;
+        formRef.current.cep.value = lead.zipCode;
+        formRef.current.observacoes.value = lead.observations;
+        setPhone(maskService.phoneMask(lead.phone));
+    }
+
     async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
         const currentTarget = e.currentTarget;
         e.preventDefault();
@@ -58,7 +76,7 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
                     <button className='text-gray-500 hover:text-gray-700 text-3xl hover:cursor-pointer' onClick={() => setShowModal(false)}>x</button>
                 </div>
                 <br className='border-2' />
-                <form onSubmit={handleFormSubmit}>
+                <form ref={formRef} onSubmit={handleFormSubmit}>
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Nome Completo *
                         <input required type="text" name="nomeCompleto" id="nomeCompleto" className='w-full p-2 border border-gray-300 rounded-md'/>
                     </label>
@@ -68,7 +86,7 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Telefone *
                         <input required type="tel" name="telefone" id="telefone" className='w-full p-2 border border-gray-300 rounded-md' value={phone} onChange={handlePhoneChange} />
                     </label>
-                    <AddressForm />
+                    <AddressForm initialCep={lead?.zipCode} initialState={lead?.state} initialCityId={lead?.cityId} initialNeighborhood={lead?.neighborhood} initialAddress={lead?.address} />
                     <label className='block mb-2 text-sm font-medium text-gray-700'>Observações
                         <textarea name="observacoes" id="observacoes" rows={4} className='w-full p-2 border border-gray-300 rounded-md' />
                     </label>
@@ -87,4 +105,4 @@ function CreateLeadModalForm({ showModal, setShowModal }: Props) {
     )
 }
 
-export default CreateLeadModalForm
+export default LeadModalForm

@@ -5,6 +5,7 @@ import LeadListTableRow from '../leadListCard/LeadListTableRow'
 import Lead from '@/shared/models/Lead';
 import LeadRepository from '@/shared/repositories/LeadRepository';
 import ViewleadModal from '../viewleadModal/ViewleadModal';
+import LeadModalForm from '../leadModalForm/LeadModalForm';
 
 type Props = {}
 
@@ -13,12 +14,28 @@ function LeadListTable({ }: Props) {
     const [leadsAreLoading, setLeadsAreLoading] = useState(true);
     const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
     const [openViewLeadModal, setOpenViewLeadModal] = useState(false);
+    const [openEditLeadModal, setOpenEditLeadModal] = useState(false);
     useEffect(() => {
         LeadRepository.getLeads().then((newLeads) => {
             setLeads(newLeads);
             setLeadsAreLoading(false);
         });
     }, []);
+
+    function deleteLead(lead: Lead){
+        setLeads(leads.filter(l => l.id !== lead.id));
+        LeadRepository.deleteLead(lead.id);
+    }
+
+    function seeLead(lead: Lead) {
+        setSelectedLead(lead);
+        setOpenViewLeadModal(true);
+    }
+
+    function editLead(lead: Lead) {
+        setSelectedLead(lead);
+        setOpenEditLeadModal(true);
+    }
 
 
     return (
@@ -36,7 +53,15 @@ function LeadListTable({ }: Props) {
                 <tbody>
                     {
                         leadsAreLoading ? (<tr><td className='text-center h-20 font-semibold' colSpan={5}>Carregando ...</td></tr>)
-                        : leads?.map((lead) => (<LeadListTableRow key={lead.id} lead={lead} onSeeClick={() => { setSelectedLead(lead); setOpenViewLeadModal(true); }} />))
+                        : leads?.map((lead) => (
+                            <LeadListTableRow 
+                                key={lead.id} 
+                                lead={lead} 
+                                onSeeClick={() => seeLead(lead)}
+                                onEditClick={() => editLead(lead)}
+                                onDeleteClick={() => deleteLead(lead)}
+                            />)
+                        )
                     }
                     {
                         leads.length === 0 && !leadsAreLoading ? (
@@ -65,7 +90,12 @@ function LeadListTable({ }: Props) {
                     </tr>
                 </tfoot>
             </table>
-            <ViewleadModal lead={selectedLead} open={openViewLeadModal} />
+            {
+                openViewLeadModal && <ViewleadModal lead={selectedLead} open={openViewLeadModal} closeModal={() => setOpenViewLeadModal(false)} />
+            }
+            {
+                openEditLeadModal && <LeadModalForm lead={selectedLead} showModal={openEditLeadModal} setShowModal={setOpenEditLeadModal} />
+            }
         </div>
     )
 }

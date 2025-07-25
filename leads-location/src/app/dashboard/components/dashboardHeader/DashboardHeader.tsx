@@ -1,6 +1,6 @@
 "use client"
 
-import CreateLeadModalForm from '@/app/dashboard/components/createLeadModalForm/CreateLeadModalForm'
+import LeadModalForm from '@/app/dashboard/components/leadModalForm/LeadModalForm'
 import React from 'react'
 
 type Props = {}
@@ -24,7 +24,7 @@ function DashboardHeader({}: Props) {
                 </li>
             </ul>
         </header>
-        <CreateLeadModalForm showModal={showModal} setShowModal={setShowModal} />
+        <LeadModalForm showModal={showModal} setShowModal={setShowModal} />
     </>
   )
 }
